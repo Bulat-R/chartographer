@@ -31,8 +31,7 @@ public class ChartaService {
         return id;
     }
 
-    @SneakyThrows
-    public void save(String id, int x, int y, int width, int height, InputStream stream) {
+    public void save(String id, int x, int y, int width, int height, InputStream stream) throws IOException {
         String tmpFile = Config.pathToContent + File.separator + UUID.randomUUID();
         try {
             Files.copy(stream, Path.of(tmpFile));
@@ -40,7 +39,11 @@ public class ChartaService {
                  RandomAccessFile rafTmp = new RandomAccessFile(tmpFile, "r")) {
 
                 while (raf.getChannel().tryLock() == null) {
-                    Thread.sleep(500);
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 raf.seek(18);
@@ -75,13 +78,16 @@ public class ChartaService {
         }
     }
 
-    @SneakyThrows
-    public ByteArrayResource get(String id, int x, int y, int fragmentW, int fragmentH) {
+    public ByteArrayResource get(String id, int x, int y, int fragmentW, int fragmentH) throws IOException {
         byte[] out = Arrays.copyOf(getBMPHeader(fragmentW, fragmentH), 54 + (fragmentW * 3 + fragmentW % 4) * fragmentH);
         try (RandomAccessFile raf = new RandomAccessFile(Config.pathToContent + File.separator + id, "r")) {
 
             while (raf.getChannel().tryLock(0, Integer.MAX_VALUE, true) == null) {
-                Thread.sleep(500);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             raf.seek(18);
@@ -106,9 +112,14 @@ public class ChartaService {
         return new ByteArrayResource(out);
     }
 
-    @SneakyThrows
-    public void delete(String fileName) {
-        Files.deleteIfExists(Path.of(fileName));
+    public void delete(String fileName) throws IOException {
+        while (!Files.deleteIfExists(Path.of(fileName))) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void checkId(String id) {

@@ -48,14 +48,14 @@ public class ChartaController {
                                  @RequestParam @Min(0) @Max(20000) int x,
                                  @RequestParam @Min(0) @Max(50000) int y,
                                  @RequestParam @Min(1) @Max(5000) int width,
-                                 @RequestParam @Min(1) @Max(5000) int height) {
+                                 @RequestParam @Min(1) @Max(5000) int height) throws IOException {
 
         service.checkId(id);
         return service.get(id, x, y, width, height);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable String id) {
+    public void delete(@PathVariable String id) throws IOException {
         service.checkId(id);
         service.delete(Config.pathToContent + File.separator + id);
     }
