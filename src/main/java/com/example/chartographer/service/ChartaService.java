@@ -39,11 +39,7 @@ public class ChartaService {
                  RandomAccessFile rafTmp = new RandomAccessFile(tmpFile, "r")) {
 
                 while (raf.getChannel().tryLock() == null) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    waitUnlock(500);
                 }
 
                 raf.seek(18);
@@ -83,11 +79,7 @@ public class ChartaService {
         try (RandomAccessFile raf = new RandomAccessFile(Config.pathToContent + File.separator + id, "r")) {
 
             while (raf.getChannel().tryLock(0, Integer.MAX_VALUE, true) == null) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                waitUnlock(500);
             }
 
             raf.seek(18);
@@ -114,11 +106,7 @@ public class ChartaService {
 
     public void delete(String fileName) throws IOException {
         while (!Files.deleteIfExists(Path.of(fileName))) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            waitUnlock(500);
         }
     }
 
@@ -165,5 +153,13 @@ public class ChartaService {
         int c = raf.readByte() & 0xFF;
         int d = raf.readByte() & 0xFF;
         return (d << 24) | (c << 16) | (b << 8) | a;
+    }
+
+    private void waitUnlock(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
