@@ -105,9 +105,10 @@ public class ChartaService {
     }
 
     public void delete(String fileName) throws IOException {
-        if (Files.exists(Path.of(fileName)) && Files.isRegularFile(Path.of(fileName))) {
-            while (!Files.deleteIfExists(Path.of(fileName))) {
-                waitUnlock(500);
+        while (!Files.deleteIfExists(Path.of(fileName))) {
+            waitUnlock(500);
+            if (Files.notExists(Path.of(fileName))) {
+                return;
             }
         }
     }
