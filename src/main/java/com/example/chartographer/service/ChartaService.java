@@ -40,6 +40,7 @@ public class ChartaService {
 
                 while (raf.getChannel().tryLock() == null) {
                     waitUnlock(500);
+                    checkId(id);
                 }
 
                 raf.seek(18);
@@ -80,6 +81,7 @@ public class ChartaService {
 
             while (raf.getChannel().tryLock(0, Integer.MAX_VALUE, true) == null) {
                 waitUnlock(500);
+                checkId(id);
             }
 
             raf.seek(18);
